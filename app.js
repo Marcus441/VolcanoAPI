@@ -66,16 +66,19 @@ app.use(function (err, req, res, next) {
         error: true,
         message: "Country is a required query parameter."
       });
+      break;
     case "Invalid populatedWithin value":
       res.status(400).json({
         error: true,
         message: "Invalid value for populatedWithin. Only: 5km,10km,30km,100km are permitted"
       });
+      break;
     case "params are not country or populatedWithin":
       res.status(400).json({
         error: true,
         message: "Invalid query parameters. Only country and populatedWithin are permitted."
       });
+      break;
     default:
       // render the error page
       res.status(err.status || 500);

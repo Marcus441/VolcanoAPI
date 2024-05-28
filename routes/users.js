@@ -12,27 +12,33 @@ router.get('/', function (req, res, next) {
 router.post('/register', function (req, res, next) {
   // 1. Retrieve email and password from req.body
   const { email, password } = req.body;
+  console.log(`Registering user with email: ${email}`); // Log the email of the user being registered
+
   // 2. Determine if user already exists in table
   if (!email || !password) {
-    return res.status(400).json({
+    res.status(400).json({
       error: true,
       message: "Request body incomplete, both email and password are required"
     });
+    return;
   }
+
   req.db.from('users').select('*').where('email', email)
     // 2.1 If user does not exist, insert into table
     .then((rows) => {
       if (rows.length === 0) {
         const saltRounds = 10;
         const hash = bcrypt.hashSync(password, saltRounds);
+        console.log(`User does not exist, inserting into table`); // Log that the user is being inserted into the table
         return req.db.from('users').insert({ email, hash });
       }
       throw new Error("User already exists");
     }).then(() => {
+      console.log(`User created successfully`); // Log that the user was created successfully
       res.status(201).json({ message: "User created" });
     }).catch((err) => {
       // 2.2 If user does exist, return error response
-      console.log(err);
+      console.log(`Error: ${err.message}`); // Log any errors
       res.status(409).json({ error: true, message: err.message });
     });
 });
@@ -41,10 +47,11 @@ router.post('/login', function (req, res, next) {
   // 1. Retrieve email and password from req.body
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({
+    res.status(400).json({
       error: true,
       message: "Request body incomplete, both email and password are required"
     });
+    return;
   }
   req.db.from('users').select('*').where('email', email)
     .then((rows) => {

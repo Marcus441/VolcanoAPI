@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
+
 module.exports = function (req, res, next) {
     if (!("authorization" in req.headers)
         || !req.headers.authorization.match(/^Bearer /)
     ) {
-        req.user = null;
         next();
         return;
     }
@@ -11,7 +11,12 @@ module.exports = function (req, res, next) {
     try {
         req.user = jwt.verify(token, process.env.JWT_SECRET);
     } catch (e) {
-        req.user = null;
+        if (e.name === "TokenExpiredError") {
+            res.status(401).json({ error: true, message: "JWT token has expired" });
+        } else {
+            res.status(401).json({ error: true, message: "Invalid JWT token" });
+        }
+        return;
     }
 
     next();

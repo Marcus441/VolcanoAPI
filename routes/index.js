@@ -4,6 +4,7 @@ var router = express.Router();
 const swaggerUI = require('swagger-ui-express');
 const swaggerDocument = require('../docs/swagger.json');
 const authorize = require('../middleware/authorization.js');
+const authorization = require('../middleware/authorization.js');
 
 router.use('/', swaggerUI.serve);
 router.get('/', swaggerUI.setup(swaggerDocument));
@@ -67,7 +68,7 @@ router.get("/volcanoes", checkVolcanoesParams,  function (req, res, next) {
     });
 });
 
-router.get("/volcano/:id", authorize, function (req, res, next) {
+router.get("/volcano/:id", authorization, function (req, res, next) {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return next(new Error("ID must be an integer"));
@@ -101,7 +102,7 @@ router.get("/volcano/:id", authorize, function (req, res, next) {
       if (rows.length === 0) {
         throw new Error("Invalid volcano id");
       }
-      res.json(rows);
+      res.json(rows[0]);
     })
     .catch((err) => {
       switch (err.message) {
