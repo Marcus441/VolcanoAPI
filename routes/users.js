@@ -1,0 +1,77 @@
+var express = require('express');
+var router = express.Router();
+
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET;
+/* GET users listing. */
+router.get('/', function (req, res, next) {
+  res.send('respond with a resource');
+});
+
+router.post('/register', function (req, res, next) {
+  // 1. Retrieve email and password from req.body
+  const { email, password } = req.body;
+  // 2. Determine if user already exists in table
+  if (!email || !password) {
+    return res.status(400).json({
+      error: true,
+      message: "Request body incomplete, both email and password are required"
+    });
+  }
+  req.db.from('users').select('*').where('email', email)
+    // 2.1 If user does not exist, insert into table
+    .then((rows) => {
+      if (rows.length === 0) {
+        const saltRounds = 10;
+        const hash = bcrypt.hashSync(password, saltRounds);
+        return req.db.from('users').insert({ email, hash });
+      }
+      throw new Error("User already exists");
+    }).then(() => {
+      res.status(201).json({ message: "User created" });
+    }).catch((err) => {
+      // 2.2 If user does exist, return error response
+      console.log(err);
+      res.status(409).json({ error: true, message: err.message });
+    });
+});
+
+router.post('/login', function (req, res, next) {
+  // 1. Retrieve email and password from req.body
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({
+      error: true,
+      message: "Request body incomplete, both email and password are required"
+    });
+  }
+  req.db.from('users').select('*').where('email', email)
+    .then((rows) => {
+      // 2. Determine if user already exists in table
+      if (rows.length === 0) {
+        throw new Error("User does not exist");
+      }
+      // 2.1 If user does exist, verify if passwords match
+      const user = rows[0];
+      return bcrypt.compare(password, user.hash);
+    }).then((match) => {
+      if (!match) {
+        throw new Error("Incorrect email or password");
+      }
+      const expires_in = 60 * 60 * 24; // 24 hours
+      const exp = Math.floor(Date.now() / 1000) + expires_in;
+      const token = jwt.sign({ exp }, JWT_SECRET);
+      // 2.1.1 If passwords match, return JWT
+      res.status(200).json({
+        token_type: "Bearer",
+        token,
+        expires_in
+      });
+    }).catch((err) => {
+      // 2.1.2 If passwords do not match, return error response
+      console.log(err);
+      res.status(401).json({ error: true, message: err.message });
+    });
+});
+module.exports = router;
