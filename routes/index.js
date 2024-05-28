@@ -68,7 +68,17 @@ router.get("/volcanoes", checkVolcanoesParams,  function (req, res, next) {
     });
 });
 
-router.get("/volcano/:id", authorization, function (req, res, next) {
+const optionalAuth = (req, res, next) => {
+  if ("authorization" in req.headers) {
+      // Use authorization middleware if Authorization header is present
+      authorization(req, res, next);
+  } else {
+      // Skip authorization if Authorization header is not present
+      next();
+  }
+};
+
+router.get("/volcano/:id", optionalAuth, function (req, res, next) {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return next(new Error("ID must be an integer"));
