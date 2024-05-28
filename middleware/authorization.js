@@ -1,6 +1,8 @@
-import { verify, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+// @ts-ignore
 
-export default function (req, res, next) {
+const jwt = require('jsonwebtoken');
+
+module.exports = function (req, res, next) {
     if (!("authorization" in req.headers)) {
         res.status(401).json({ error: true, message: "Authorization header ('Bearer token') not found" });
         return;
@@ -11,11 +13,11 @@ export default function (req, res, next) {
     }
     const token = req.headers.authorization.replace(/^Bearer /, "");
     try {
-        req.user = verify(token, process.env.JWT_SECRET);
+        req.user = jwt.verify(token, process.env.JWT_SECRET);
     } catch (e) {
-        if (e instanceof TokenExpiredError) {
+        if (e instanceof jwt.TokenExpiredError) {
             res.status(401).json({ error: true, message: "JWT token has expired" });
-        } else if (e instanceof JsonWebTokenError) {
+        } else if (e instanceof jwt.JsonWebTokenError) {
             res.status(401).json({ error: true, message: "Invalid JWT token" });
         }
         return;
@@ -24,8 +26,3 @@ export default function (req, res, next) {
     next();
 };
 
-// if (e.name === "TokenExpiredError") {
-//     res.status(401).json({ error: true, message: "JWT token has expired" });
-// } else {
-//     res.status(401).json({ error: true, message: "Invalid JWT token" });
-// }
