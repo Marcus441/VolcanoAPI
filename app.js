@@ -44,7 +44,6 @@ app.get('/me', function (req, res) {
     student_number: "n11240296"
   });
 });
-
 // catch 404
 app.use(function (req, res, next) {
   res.status(404).json({

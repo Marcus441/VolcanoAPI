@@ -18,9 +18,7 @@ module.exports = function (req, res, next) {
         } else if (e instanceof jwt.JsonWebTokenError) {
             res.status(401).json({ error: true, message: "Invalid JWT token" });
         }
-        return;
     }
-
     next();
 };
 

@@ -11,11 +11,8 @@ const validateProfileRequest = require('../middleware/validateProfileRequest.js'
 const validateEmailWithToken = require('../middleware/validateEmailWithToken.js');
 
 router.post('/register', function (req, res, next) {
-  // 1. Retrieve email and password from req.body
   const { email, password } = req.body;
-  console.log(`Registering user with email: ${email}`); // Log the email of the user being registered
 
-  // 2. Determine if user already exists in table
   if (!email || !password) {
     res.status(400).json({
       error: true,
@@ -25,17 +22,14 @@ router.post('/register', function (req, res, next) {
   }
 
   req.db.from('users').select('*').where('email', email)
-    // 2.1 If user does not exist, insert into table
     .then((rows) => {
       if (rows.length === 0) {
         const saltRounds = 10;
         const hash = bcrypt.hashSync(password, saltRounds);
-        console.log(`User does not exist, inserting into table`); // Log that the user is being inserted into the table
         return req.db.from('users').insert({ email, hash });
       }
       throw new Error("User already exists");
     }).then(() => {
-      console.log(`User created successfully`); // Log that the user was created successfully
       res.status(201).json({ message: "User created" });
     }).catch((err) => {
       // 2.2 If user does exist, return error response
@@ -45,7 +39,6 @@ router.post('/register', function (req, res, next) {
 });
 
 router.post('/login', function (req, res, next) {
-  // 1. Retrieve email and password from req.body
   const { email, password } = req.body;
   if (!email || !password) {
     res.status(400).json({
@@ -54,13 +47,12 @@ router.post('/login', function (req, res, next) {
     });
     return;
   }
+
   req.db.from('users').select('*').where('email', email)
     .then((rows) => {
-      // 2. Determine if user already exists in table
       if (rows.length === 0) {
         throw new Error("User does not exist");
       }
-      // 2.1 If user does exist, verify if passwords match
       const user = rows[0];
       return bcrypt.compare(password, user.hash);
     }).then((match) => {
@@ -86,8 +78,6 @@ router.post('/login', function (req, res, next) {
 router.put("/:email/profile", authorization, validateProfileRequest, validateEmailWithToken, function (req, res, next) {
   const { email } = req.params;
   const { firstName, lastName, dob, address } = req.body;
-
-
 
   req.db.from('users').select('*').where('email', email)
     .then((rows) => {
