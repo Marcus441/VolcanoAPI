@@ -9,7 +9,10 @@ const cors = require('cors');
 
 require("dotenv").config();
 
-var indexRouter = require('./routes/index');
+var swaggerRouter = require('./routes/swagger');
+var countriesRouter = require('./routes/countries');
+var volcanoRouter = require('./routes/volcano');
+var volcanoesRouter = require('./routes/volcanoes');
 var usersRouter = require('./routes/users');
 
 var app = express();
@@ -29,8 +32,11 @@ app.use((req, res, next) => {
 });
 app.use(cors());
 
-app.use('/', indexRouter);
-
+//routes
+app.use('/', swaggerRouter);
+app.use('/countries', countriesRouter);
+app.use('/volcano', volcanoRouter);
+app.use('/volcanoes', volcanoesRouter);
 app.use('/user', usersRouter);
 app.get('/me', function (req, res) {
   res.json({
@@ -38,7 +44,8 @@ app.get('/me', function (req, res) {
     student_number: "n11240296"
   });
 });
-// catch 404 and forward to error handler
+
+// catch 404
 app.use(function (req, res, next) {
   res.status(404).json({
     error: true,

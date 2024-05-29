@@ -4,9 +4,11 @@ var router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
+
 const authorization = require('../middleware/authorization.js');
 const optionalAuth = require('../middleware/optionalAuth.js');
-/* GET users listing. */
+const validateProfileRequest = require('../middleware/validateProfileRequest.js');
+const validateEmailWithToken = require('../middleware/validateEmailWithToken.js');
 
 router.post('/register', function (req, res, next) {
   // 1. Retrieve email and password from req.body
@@ -80,65 +82,8 @@ router.post('/login', function (req, res, next) {
       res.status(401).json({ error: true, message: err.message });
     });
 });
-function validateEmail(req, res, next) {
-  const { email } = req.params;
-  if (req.user.email !== email) {
-    res.status(403).json({
-      error: true,
-      message: "Forbidden."
-    });
-    return;
-  }
-  next();
-}
 
-
-function validateRequest(req, res, next) {
-  const { firstName, lastName, dob, address } = req.body;
-
-  // Check if the email from the token does not match the email in the request parameters
-
-  if (!firstName || !lastName || !dob || !address) {
-    return res.status(400).json({
-      error: true,
-      message: "Request body incomplete: firstName, lastName, dob and address are required."
-    });
-  }
-
-  if (typeof firstName !== 'string' || typeof lastName !== 'string' || typeof address !== 'string' || typeof dob !== 'string') {
-    return res.status(400).json({
-      error: true,
-      message: "Request body invalid: firstName, lastName and address must be strings only."
-    });
-  }
-
-  const dobFormat = /^\d{4}-\d{2}-\d{2}$/;
-  const [year, month, day] = dob.split('-');
-  const date = new Date(dob);
-  const currentDate = new Date();
-
-  if (!dobFormat.test(dob)
-    || isNaN(date.getTime())
-    || date.getUTCFullYear() !== Number(year)
-    || date.getUTCMonth() + 1 !== Number(month)
-    || date.getUTCDate() !== Number(day)) {
-    return res.status(400).json({
-      error: true,
-      message: "Invalid input: dob must be a real date in format YYYY-MM-DD."
-    });
-  }
-
-  if (date > currentDate) {
-    return res.status(400).json({
-      error: true,
-      message: "Invalid input: dob must be a date in the past."
-    });
-  }
-
-  next();
-}
-
-router.put("/:email/profile", authorization, validateRequest, validateEmail, function (req, res, next) {
+router.put("/:email/profile", authorization, validateProfileRequest, validateEmailWithToken, function (req, res, next) {
   const { email } = req.params;
   const { firstName, lastName, dob, address } = req.body;
 
@@ -164,8 +109,6 @@ router.put("/:email/profile", authorization, validateRequest, validateEmail, fun
     });
 });
 
-
-
 router.get("/:email/profile", optionalAuth, function (req, res, next) {
   const { email } = req.params;
   const selectColumns = [
@@ -188,4 +131,5 @@ router.get("/:email/profile", optionalAuth, function (req, res, next) {
       res.status(404).json({ error: true, message: err.message });
     });
 });
+
 module.exports = router;
