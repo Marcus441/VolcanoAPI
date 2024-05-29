@@ -4,6 +4,8 @@ var router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
+const authorization = require('../middleware/authorization.js');
+
 /* GET users listing. */
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
@@ -80,5 +82,80 @@ router.post('/login', function (req, res, next) {
       console.log(err);
       res.status(401).json({ error: true, message: err.message });
     });
+});
+
+router.put("/:email/profile", authorization, function (req, res, next) {
+  const { email } = req.params;
+  const { firstName, lastName, dob, address } = req.body;
+
+  if (!firstName || !lastName || !dob || !address) {
+    res.status(400).json({
+      error: true,
+      message: "Request body incomplete: firstName, lastName, dob and address are required."
+    });
+    return;
+  }
+  const dobFormat = /^\d{4}-\d{2}-\d{2}$/;
+  const [year, month, day] = dob.split('-');
+  const date = new Date(dob);
+  const currentDate = new Date();
+    // Check if dob is in the 'YYYY-MM-DD' format, is a valid date, and the day and month are the same as in the dob string
+  if (!dobFormat.test(dob)
+    || isNaN(date.getTime())
+  || date.getUTCFullYear() !== Number(year)
+  || date.getUTCMonth() + 1 !== Number(month)
+  || date.getUTCDate() !== Number(day)) {
+    res.status(400).json({
+      error: true,
+      message: "Invalid input: dob must be a real date in format YYYY-MM-DD."
+    });
+    return;
+  }
+  // Check if the date is in the future
+  console.log("Given date", date);
+  console.log("Current date", currentDate);
+  if (date > currentDate) {
+    res.status(400).json({
+      error: true,
+      message: "Invalid input: dob must be a date in the past."
+    });
+    return;
+  }
+  if (typeof firstName !== 'string' || typeof lastName !== 'string' || typeof address !== 'string') {
+    res.status(400).json({
+      error: true,
+      message: "Request body invalid: firstName, lastName and address must be strings only."
+    });
+    return;
+  }
+  // Check if the email from the token does not match the email in the request parameters
+  if (req.user.email !== email) {
+    res.status(403).json({
+      error: true,
+      message: "Forbidden."
+    });
+    return;
+  }
+
+  req.db.from('users').select('*').where('email', email)
+    .then((rows) => {
+      if (rows.length === 0) {
+        throw new Error("User does not exist");
+      }
+      return req.db.from('users').where('email', email).update({ firstName, lastName, dob, address });
+    }).then(() => {
+      res.status(200).json({
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        dob: dob,
+        address: address
+      });
+    }).catch((err) => {
+      console.log(err);
+      res.status(400).json({ error: true, message: err.message });
+    });
+
+
 });
 module.exports = router;
