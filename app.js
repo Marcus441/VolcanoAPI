@@ -31,15 +31,11 @@ app.use((req, res, next) => {
 app.use('/', indexRouter);
 
 app.use('/user', usersRouter);
-app.get("/knex", function (req, res, next) {
-  req.db.raw("SELECT VERSION()")
-    .then((version) => console.log(version[0][0]))
-    .catch((err) => {
-      console.log(err);
-      throw err;
-    });
-
-  res.send("Version Logged successfully");
+app.get('/me', function (req, res) {
+  res.json({
+    name: "Marcus Camaroni",
+    student_number: "n11240296"
+  });
 });
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
