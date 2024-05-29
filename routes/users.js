@@ -92,18 +92,6 @@ function validateEmail(req, res, next) {
   next();
 }
 
-function validateEmail(req, res, next) {
-  const { email } = req.params;
-
-  if (req.user.email !== email) {
-    res.status(403).json({
-      error: true,
-      message: "Forbidden."
-    });
-    return;
-  }
-  next();
-}
 
 function validateRequest(req, res, next) {
   const { firstName, lastName, dob, address } = req.body;
