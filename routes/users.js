@@ -85,8 +85,17 @@ router.post('/login', function (req, res, next) {
 });
 
 function validateRequest(req, res, next) {
+  const { email } = req.params;
   const { firstName, lastName, dob, address } = req.body;
 
+  // Check if the email from the token does not match the email in the request parameters
+  if (req.user.email !== email) {
+    res.status(403).json({
+      error: true,
+      message: "Forbidden."
+    });
+    return;
+  }
   if (!firstName || !lastName || !dob || !address) {
     return res.status(400).json({
       error: true,
@@ -131,16 +140,7 @@ router.put("/:email/profile", authorization, validateRequest, function (req, res
   const { email } = req.params;
   const { firstName, lastName, dob, address } = req.body;
 
-  // Check if the email from the token does not match the email in the request parameters
-  console.log(req.user.email);
-  console.log(email);
-  if (req.user.email !== email) {
-    res.status(403).json({
-      error: true,
-      message: "Forbidden."
-    });
-    return;
-  }
+
 
   req.db.from('users').select('*').where('email', email)
     .then((rows) => {
