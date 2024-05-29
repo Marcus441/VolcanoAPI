@@ -1,4 +1,3 @@
-var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -6,6 +5,7 @@ var logger = require('morgan');
 
 const options = require("./knexfile.js");
 const knex = require("knex")(options);
+const cors = require('cors');
 
 require("dotenv").config();
 
@@ -27,6 +27,7 @@ app.use((req, res, next) => {
   req.db = knex;
   next();
 });
+app.use(cors());
 
 app.use('/', indexRouter);
 

@@ -26,7 +26,7 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `firstName` varchar(255) DEFAULT NULL,
   `lastName` varchar(255) DEFAULT NULL,
-  `dob` DATE DEFAULT NULL,
+  `dob` varchar(255) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `hash` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),

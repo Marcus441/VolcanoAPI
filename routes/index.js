@@ -3,7 +3,7 @@ var router = express.Router();
 
 const swaggerUI = require('swagger-ui-express');
 const swaggerDocument = require('../docs/swagger.json');
-const authorization = require('../middleware/authorization.js');
+const optionalAuth = require('../middleware/optionalAuth.js');
 
 router.use('/', swaggerUI.serve);
 router.get('/', swaggerUI.setup(swaggerDocument));
@@ -67,15 +67,6 @@ router.get("/volcanoes", checkVolcanoesParams,  function (req, res, next) {
     });
 });
 
-const optionalAuth = (req, res, next) => {
-  if ("authorization" in req.headers) {
-      // Use authorization middleware if Authorization header is present
-      authorization(req, res, next);
-  } else {
-      // Skip authorization if Authorization header is not present
-      next();
-  }
-};
 
 router.get("/volcano/:id", optionalAuth, function (req, res, next) {
   const id = Number(req.params.id);

@@ -5,11 +5,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 const authorization = require('../middleware/authorization.js');
-
+const optionalAuth = require('../middleware/optionalAuth.js');
 /* GET users listing. */
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
-});
 
 router.post('/register', function (req, res, next) {
   // 1. Retrieve email and password from req.body
@@ -83,12 +80,8 @@ router.post('/login', function (req, res, next) {
       res.status(401).json({ error: true, message: err.message });
     });
 });
-
-function validateRequest(req, res, next) {
+function validateEmail(req, res, next) {
   const { email } = req.params;
-  const { firstName, lastName, dob, address } = req.body;
-
-  // Check if the email from the token does not match the email in the request parameters
   if (req.user.email !== email) {
     res.status(403).json({
       error: true,
@@ -96,6 +89,27 @@ function validateRequest(req, res, next) {
     });
     return;
   }
+  next();
+}
+
+function validateEmail(req, res, next) {
+  const { email } = req.params;
+
+  if (req.user.email !== email) {
+    res.status(403).json({
+      error: true,
+      message: "Forbidden."
+    });
+    return;
+  }
+  next();
+}
+
+function validateRequest(req, res, next) {
+  const { firstName, lastName, dob, address } = req.body;
+
+  // Check if the email from the token does not match the email in the request parameters
+
   if (!firstName || !lastName || !dob || !address) {
     return res.status(400).json({
       error: true,
@@ -136,7 +150,7 @@ function validateRequest(req, res, next) {
   next();
 }
 
-router.put("/:email/profile", authorization, validateRequest, function (req, res, next) {
+router.put("/:email/profile", authorization, validateRequest, validateEmail, function (req, res, next) {
   const { email } = req.params;
   const { firstName, lastName, dob, address } = req.body;
 
@@ -160,7 +174,30 @@ router.put("/:email/profile", authorization, validateRequest, function (req, res
       console.log(err);
       res.status(400).json({ error: true, message: err.message });
     });
+});
 
 
+
+router.get("/:email/profile", optionalAuth, function (req, res, next) {
+  const { email } = req.params;
+  const selectColumns = [
+    "email",
+    "firstName",
+    "lastName",
+  ];
+  if (req.user && req.user.email === email) {
+    selectColumns.push("dob", "address");
+  }
+
+  req.db.from('users').select(selectColumns).where('email', email)
+    .then((rows) => {
+      if (rows.length === 0) {
+        throw new Error("User does not exist");
+      }
+      return res.json(rows[0]);
+    }).catch((err) => {
+      console.log(err);
+      res.status(404).json({ error: true, message: err.message });
+    });
 });
 module.exports = router;
