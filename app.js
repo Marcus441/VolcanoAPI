@@ -6,6 +6,7 @@ var logger = require('morgan');
 const options = require("./knexfile.js");
 const knex = require("knex")(options);
 const cors = require('cors');
+const errorHandler = require('./middleware/errorHandler');
 
 require("dotenv").config();
 
@@ -53,45 +54,6 @@ app.use(function (req, res, next) {
 });
 
 // error handler
-app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  switch (err.message) {
-    case "ID must be an integer":
-      res.status(400).json({
-        error: true,
-        message: "ID must be an integer"
-      });
-      break;
-    case "No country given":
-      res.status(400).json({
-        error: true,
-        message: "Country is a required query parameter."
-      });
-      break;
-    case "Invalid populatedWithin value":
-      res.status(400).json({
-        error: true,
-        message: "Invalid value for populatedWithin. Only: 5km,10km,30km,100km are permitted"
-      });
-      break;
-    case "params are not country or populatedWithin":
-      res.status(400).json({
-        error: true,
-        message: "Invalid query parameters. Only country and populatedWithin are permitted."
-      });
-      break;
-    default:
-      // render the error page
-      res.status(err.status || 500);
-      res.render('error', {
-        message: err.message,
-        error: err,
-        title: 'Error Page' 
-      });
-  }
-
-});
+app.use(errorHandler);
 
 module.exports = app;

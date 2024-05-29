@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
+const error = require('../utils/error.js');
 const checkVolcanoesParams = require('../middleware/checkVolcanoesParams.js');
 
 router.get("/", checkVolcanoesParams, function (req, res, next) {
@@ -12,10 +13,10 @@ router.get("/", checkVolcanoesParams, function (req, res, next) {
     ];
 
     if (!req.query.country) {
-        return next(new Error("No country given"));
+        return next(new error("No country given", 400));
     }
     if (req.query.populatedWithin && !validPopulatedWithin.includes(req.query.populatedWithin)) {
-        return next(new Error("Invalid populatedWithin value"));
+        return next(new error("Invalid value for populatedWithin. Only: 5km,10km,30km,100km are permitted", 400));
     }
     const country = req.query.country;
     const populatedWithin = req.query.populatedWithin ? `population_${req.query.populatedWithin}` : '';
@@ -30,10 +31,6 @@ router.get("/", checkVolcanoesParams, function (req, res, next) {
     query.then((rows) => {
         res.json(rows);
     })
-        .catch((err) => {
-            console.log(err);
-            res.json([]);
-        });
 });
 
 module.exports = router;

@@ -1,20 +1,15 @@
+const error = require("../utils/error");
+
 module.exports = function (req, res, next) {
     const { firstName, lastName, dob, address } = req.body;
   
     // Check if the email from the token does not match the email in the request parameters
-  
+
     if (!firstName || !lastName || !dob || !address) {
-      return res.status(400).json({
-        error: true,
-        message: "Request body incomplete: firstName, lastName, dob and address are required."
-      });
+      return next(new error("Request body incomplete: firstName, lastName, dob and address are required.", 400));
     }
-  
     if (typeof firstName !== 'string' || typeof lastName !== 'string' || typeof address !== 'string' || typeof dob !== 'string') {
-      return res.status(400).json({
-        error: true,
-        message: "Request body invalid: firstName, lastName and address must be strings only."
-      });
+      return next(new error("Request body invalid: firstName, lastName and address must be strings only.", 400));
     }
   
     const dobFormat = /^\d{4}-\d{2}-\d{2}$/;
@@ -27,17 +22,11 @@ module.exports = function (req, res, next) {
       || date.getUTCFullYear() !== Number(year)
       || date.getUTCMonth() + 1 !== Number(month)
       || date.getUTCDate() !== Number(day)) {
-      return res.status(400).json({
-        error: true,
-        message: "Invalid input: dob must be a real date in format YYYY-MM-DD."
-      });
+      return next(new error("Invalid input: dob must be a real date in format YYYY-MM-DD.", 400));
     }
   
     if (date > currentDate) {
-      return res.status(400).json({
-        error: true,
-        message: "Invalid input: dob must be a date in the past."
-      });
+      return next(new error("Invalid input: dob must be a date in the past.", 400));
     }
   
     next();

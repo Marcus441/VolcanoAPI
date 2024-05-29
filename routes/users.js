@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 
+const error = require('../utils/error');
 const authorization = require('../middleware/authorization.js');
 const optionalAuth = require('../middleware/optionalAuth.js');
 const validateProfileRequest = require('../middleware/validateProfileRequest.js');
@@ -14,11 +15,7 @@ router.post('/register', function (req, res, next) {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(400).json({
-      error: true,
-      message: "Request body incomplete, both email and password are required"
-    });
-    return;
+    return next(new error("Request body incomplete, both email and password are required", 400));
   }
 
   req.db.from('users').select('*').where('email', email)
@@ -28,30 +25,24 @@ router.post('/register', function (req, res, next) {
         const hash = bcrypt.hashSync(password, saltRounds);
         return req.db.from('users').insert({ email, hash });
       }
-      throw new Error("User already exists");
+      next(new error("User already exists", 409));
     }).then(() => {
       res.status(201).json({ message: "User created" });
     }).catch((err) => {
-      // 2.2 If user does exist, return error response
-      console.log(`Error: ${err.message}`); // Log any errors
-      res.status(409).json({ error: true, message: err.message });
+      next(err);
     });
 });
 
 router.post('/login', function (req, res, next) {
   const { email, password } = req.body;
   if (!email || !password) {
-    res.status(400).json({
-      error: true,
-      message: "Request body incomplete, both email and password are required"
-    });
-    return;
+    return next(new error("Request body incomplete, both email and password are required", 400));
   }
 
   req.db.from('users').select('*').where('email', email)
     .then((rows) => {
       if (rows.length === 0) {
-        throw new Error("User does not exist");
+        throw new Error("Incorrect email or password");
       }
       const user = rows[0];
       return bcrypt.compare(password, user.hash);
@@ -69,9 +60,7 @@ router.post('/login', function (req, res, next) {
         expires_in
       });
     }).catch((err) => {
-      // 2.1.2 If passwords do not match, return error response
-      console.log(err);
-      res.status(401).json({ error: true, message: err.message });
+      next(err);
     });
 });
 
@@ -82,7 +71,8 @@ router.put("/:email/profile", authorization, validateProfileRequest, validateEma
   req.db.from('users').select('*').where('email', email)
     .then((rows) => {
       if (rows.length === 0) {
-        throw new Error("User does not exist");
+        next(new error("User does not exist", 404));
+        return;
       }
       return req.db.from('users').where('email', email).update({ firstName, lastName, dob, address });
     }).then(() => {
@@ -94,8 +84,7 @@ router.put("/:email/profile", authorization, validateProfileRequest, validateEma
         address: address
       });
     }).catch((err) => {
-      console.log(err);
-      res.status(400).json({ error: true, message: err.message });
+      next(err);
     });
 });
 
@@ -113,12 +102,12 @@ router.get("/:email/profile", optionalAuth, function (req, res, next) {
   req.db.from('users').select(selectColumns).where('email', email)
     .then((rows) => {
       if (rows.length === 0) {
-        throw new Error("User does not exist");
+        next(new error("User does not exist", 404));
+        return;
       }
       return res.json(rows[0]);
     }).catch((err) => {
-      console.log(err);
-      res.status(404).json({ error: true, message: err.message });
+      next(err);
     });
 });
 
