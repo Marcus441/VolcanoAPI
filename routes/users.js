@@ -70,7 +70,7 @@ router.post('/login', function (req, res, next) {
       }
       const expires_in = 60 * 60 * 24; // 24 hours
       const exp = Math.floor(Date.now() / 1000) + expires_in;
-      const token = jwt.sign({ exp }, JWT_SECRET);
+      const token = jwt.sign({ exp, email }, JWT_SECRET);
       // 2.1.1 If passwords match, return JWT
       res.status(200).json({
         token_type: "Bearer",
@@ -84,51 +84,56 @@ router.post('/login', function (req, res, next) {
     });
 });
 
-router.put("/:email/profile", authorization, function (req, res, next) {
-  const { email } = req.params;
+function validateRequest(req, res, next) {
   const { firstName, lastName, dob, address } = req.body;
 
   if (!firstName || !lastName || !dob || !address) {
-    res.status(400).json({
+    return res.status(400).json({
       error: true,
       message: "Request body incomplete: firstName, lastName, dob and address are required."
     });
-    return;
   }
+
+  if (typeof firstName !== 'string' || typeof lastName !== 'string' || typeof address !== 'string' || typeof dob !== 'string') {
+    return res.status(400).json({
+      error: true,
+      message: "Request body invalid: firstName, lastName and address must be strings only."
+    });
+  }
+
   const dobFormat = /^\d{4}-\d{2}-\d{2}$/;
   const [year, month, day] = dob.split('-');
   const date = new Date(dob);
   const currentDate = new Date();
-    // Check if dob is in the 'YYYY-MM-DD' format, is a valid date, and the day and month are the same as in the dob string
+
   if (!dobFormat.test(dob)
     || isNaN(date.getTime())
-  || date.getUTCFullYear() !== Number(year)
-  || date.getUTCMonth() + 1 !== Number(month)
-  || date.getUTCDate() !== Number(day)) {
-    res.status(400).json({
+    || date.getUTCFullYear() !== Number(year)
+    || date.getUTCMonth() + 1 !== Number(month)
+    || date.getUTCDate() !== Number(day)) {
+    return res.status(400).json({
       error: true,
       message: "Invalid input: dob must be a real date in format YYYY-MM-DD."
     });
-    return;
   }
-  // Check if the date is in the future
-  console.log("Given date", date);
-  console.log("Current date", currentDate);
+
   if (date > currentDate) {
-    res.status(400).json({
+    return res.status(400).json({
       error: true,
       message: "Invalid input: dob must be a date in the past."
     });
-    return;
   }
-  if (typeof firstName !== 'string' || typeof lastName !== 'string' || typeof address !== 'string') {
-    res.status(400).json({
-      error: true,
-      message: "Request body invalid: firstName, lastName and address must be strings only."
-    });
-    return;
-  }
+
+  next();
+}
+
+router.put("/:email/profile", authorization, validateRequest, function (req, res, next) {
+  const { email } = req.params;
+  const { firstName, lastName, dob, address } = req.body;
+
   // Check if the email from the token does not match the email in the request parameters
+  console.log(req.user.email);
+  console.log(email);
   if (req.user.email !== email) {
     res.status(403).json({
       error: true,
