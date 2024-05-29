@@ -22,3 +22,5 @@ Thumbs.db
 
 # Misc
 .env
+.crt
+.key
