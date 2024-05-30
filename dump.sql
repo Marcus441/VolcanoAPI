@@ -37,7 +37,6 @@ LOCK TABLES `users` WRITE;
 --
 -- Table structure for table `data`
 --
-LOCK TABLES `data` WRITE;
 
 DROP TABLE IF EXISTS `data`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -62,6 +61,7 @@ CREATE TABLE `data` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1344 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+LOCK TABLES `data` WRITE;
 --
 -- Dumping data for table `data`
 --
