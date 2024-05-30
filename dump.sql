@@ -66,6 +66,7 @@ INSERT INTO `data` VALUES (1,'Abu','Japan','Japan, Taiwan, Marianas','Honshu','6
 --
 -- Table structure for table `users`
 --
+LOCK TABLES `users` WRITE;
 DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `users` (
@@ -79,6 +80,5 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `username_UNIQUE` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
-LOCK TABLES `users` WRITE;
 
 UNLOCK TABLES;
