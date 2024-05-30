@@ -3,13 +3,10 @@ var router = express.Router();
 
 const error = require('../utils/error');
 const optionalAuth = require('../middleware/optionalAuth.js');
+const validateVolcanoId = require('../middleware/validateVolcanoId.js');
 
-router.get("/:id", optionalAuth, function (req, res, next) {
+router.get("/:id", optionalAuth, validateVolcanoId, function (req, res, next) {
   const id = Number(req.params.id);
-  if (!Number.isInteger(id)) {
-    next(new error("Invalid query parameters. Query parameters are not permitted.", 400));
-    return;
-  }
   const selectColumns = [
     "id",
     "name",

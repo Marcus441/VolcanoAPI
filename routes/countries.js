@@ -1,11 +1,10 @@
 var express = require('express');
 var router = express.Router();
 
+const noQueryParamsAllowed = require('../middleware/noQueryParamsAllowed');
 
-router.get("/", function (req, res, next) {
-  if (req.params.length > 0) {
-    next(new error("Invalid query parameters. Query parameters are not permitted.",400))
-  }
+router.get("/", noQueryParamsAllowed, function (req, res, next) {
+
   req.db
     .from('data').distinct("country").orderBy('country', 'asc').pluck('country')
     .then((countryNames) => {

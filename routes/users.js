@@ -10,13 +10,10 @@ const authorization = require('../middleware/authorization.js');
 const optionalAuth = require('../middleware/optionalAuth.js');
 const validateProfileRequest = require('../middleware/validateProfileRequest.js');
 const validateEmailWithToken = require('../middleware/validateEmailWithToken.js');
+const credentialsRequired = require('../middleware/credentialsRequired.js');
 
-router.post('/register', function (req, res, next) {
+router.post('/register', credentialsRequired, function (req, res, next) {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    return next(new error("Request body incomplete, both email and password are required", 400));
-  }
 
   req.db.from('users').select('*').where('email', email)
     .then((rows) => {
@@ -33,11 +30,8 @@ router.post('/register', function (req, res, next) {
     });
 });
 
-router.post('/login', function (req, res, next) {
+router.post('/login', credentialsRequired, function (req, res, next) {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return next(new error("Request body incomplete, both email and password are required", 400));
-  }
 
   req.db.from('users').select('*').where('email', email)
     .then((rows) => {
