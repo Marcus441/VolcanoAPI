@@ -1,5 +1,5 @@
+CREATE DATABASE volcanoes;
 USE volcanoes;
-
 -- MariaDB dump 10.19-11.3.2-MariaDB, for Linux (x86_64)
 --
 -- Host: localhost    Database: volcanoes
