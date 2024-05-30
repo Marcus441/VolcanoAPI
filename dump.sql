@@ -20,6 +20,7 @@ USE `volcanoes`;
 --
 -- Table structure for table `users`
 --
+LOCK TABLES `users` WRITE;
 DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `users` (
@@ -38,6 +39,7 @@ LOCK TABLES `users` WRITE;
 --
 -- Table structure for table `data`
 --
+LOCK TABLES `data` WRITE;
 
 DROP TABLE IF EXISTS `data`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
