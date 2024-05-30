@@ -12,6 +12,7 @@ require("dotenv").config();
 
 var swaggerRouter = require('./routes/swagger');
 var countriesRouter = require('./routes/countries');
+var countryRouter = require('./routes/country');
 var volcanoRouter = require('./routes/volcano');
 var volcanoesRouter = require('./routes/volcanoes');
 var usersRouter = require('./routes/users');
@@ -36,6 +37,7 @@ app.use(cors());
 //routes
 app.use('/', swaggerRouter);
 app.use('/countries', countriesRouter);
+app.use('/country', countryRouter);
 app.use('/volcano', volcanoRouter);
 app.use('/volcanoes', volcanoesRouter);
 app.use('/user', usersRouter);
