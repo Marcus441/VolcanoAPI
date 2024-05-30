@@ -10,7 +10,7 @@ dist/
 build/
 
 # Environment variables
-.env
+# .env
 
 # Editor and IDE files
 .vscode/
@@ -21,6 +21,5 @@ build/
 Thumbs.db
 
 # Misc
-.env
 .crt
 .key
