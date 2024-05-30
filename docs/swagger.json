@@ -14,6 +14,84 @@
       }
     },
     "schemas": {
+      "MissingFields": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": "true"
+          },
+          "message": {
+            "type": "string",
+            "example": "Missing required fields: latitude,longitude,population_30km,population_100km"
+          }
+        }
+      },
+      "CountryNotInDatabase": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": "true"
+          },
+          "message": {
+            "type": "string",
+            "example": "Country not found"
+          }
+        }
+      },
+      "InvalidLastEruptionYear": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": "true"
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid last_eruption year"
+          }
+        }
+      },
+      "InvalidNumericFieldValue": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": "true"
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid elevation value"
+          }
+        }
+      },
+      "InvalidLatitude": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": "true"
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid latitude value"
+          }
+        }
+      },
+      "InvalidLongitude": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": "true"
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid longitude value"
+          }
+        }
+      },
       "MissingCountryParameterVolcanoes": {
         "type": "object",
         "properties": {
@@ -52,7 +130,8 @@
             "example": "Page not found!"
           }
         }
-      },"CountryNotFound": {
+      },
+      "CountryNotFound": {
         "type": "object",
         "properties": {
           "error": {
@@ -322,7 +401,7 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/PageNotFound"
+                      "$ref": "#/components/schemas/CountryNotFound"
                     }
                   ]
                 }
@@ -464,6 +543,211 @@
                     },
                     {
                       "$ref": "#/components/schemas/InvalidPopulatedWithinParameterVolcanoes"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Data"
+        ],
+        "description": "Returns a list of volcanoes that are associated with the queried country. The country query parameter is required. The list can optionally be filtered by using the populatedWithin query parameter. This will return a filtered list of volcanoes that have at least one person living within the provided radius.",
+        "requestBody": {
+          "description": "An object containing the email and password of the user to be registered.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "New Volcano"
+                  },
+                  "country": {
+                    "type": "string",
+                    "example": "Japan"
+                  },
+                  "region": {
+                    "type": "string",
+                    "example": "Japan, Taiwan, Marianas"
+                  },
+                  "subregion": {
+                    "type": "string",
+                    "example": "Honshu"
+                  },
+                  "last_eruption": {
+                    "type": "string",
+                    "example": "6850 BCE"
+                  },
+                  "summit": {
+                    "type": "integer",
+                    "example": 641
+                  },
+                  "elevation": {
+                    "type": "integer",
+                    "example": 2103
+                  },
+                  "population_5km": {
+                    "type": "integer",
+                    "example": 3597
+                  },
+                  "population_10km": {
+                    "type": "integer",
+                    "example": 9594
+                  },
+                  "population_30km": {
+                    "type": "integer",
+                    "example": 117805
+                  },
+                  "population_100km": {
+                    "type": "integer",
+                    "example": 4071152
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 34.5000
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 131.6000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1345
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "New Volcano"
+                    },
+                    "country": {
+                      "type": "string",
+                      "example": "Japan"
+                    },
+                    "region": {
+                      "type": "string",
+                      "example": "Japan, Taiwan, Marianas"
+                    },
+                    "subregion": {
+                      "type": "string",
+                      "example": "Honshu"
+                    },
+                    "last_eruption": {
+                      "type": "string",
+                      "example": "6850 BCE"
+                    },
+                    "summit": {
+                      "type": "integer",
+                      "example": 641
+                    },
+                    "elevation": {
+                      "type": "integer",
+                      "example": 2103
+                    },
+                    "population_5km": {
+                      "type": "integer",
+                      "example": 3597
+                    },
+                    "population_10km": {
+                      "type": "integer",
+                      "example": 9594
+                    },
+                    "population_30km": {
+                      "type": "integer",
+                      "example": 117805
+                    },
+                    "population_100km": {
+                      "type": "integer",
+                      "example": 4071152
+                    },
+                    "latitude": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 34.5000
+                    },
+                    "longitude": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 131.6000
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid field. Click on 'Schema' below to see the possible error responses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MissingFields"
+                    },
+                    {
+                      "$ref": "#/components/schemas/InvalidLastEruptionYear"
+                    },
+                    {
+                      "$ref": "#/components/schemas/InvalidNumericFieldValue"
+                    },
+                    {
+                      "$ref": "#/components/schemas/InvalidLatitude"
+                    },
+                    {
+                      "$ref": "#/components/schemas/InvalidLongitude"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Click on 'Schema' below to see the possible error responses.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/InvalidJWT"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TokenExpired"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MalformedAuthHeader"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404":{
+            "description": "Country not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/CountryNotInDatabase"
                     }
                   ]
                 }

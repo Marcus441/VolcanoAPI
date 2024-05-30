@@ -28,8 +28,8 @@ router.get("/", validateGetVolcanoes, function (req, res, next) {
 // New POST /volcanoes endpoint
 router.post("/", validatePostVolcanoes, authorization, function (req, res, next) {
 
-    req.db('data').insert(req.body).then(() => {
-        res.json(req.body);
+    req.db('data').insert(req.body).returning('id').then((ids) => {
+        res.json({ id: ids[0], ...req.body });
     }).catch((err) => {
         next(err);
     });
