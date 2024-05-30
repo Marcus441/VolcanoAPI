@@ -20,7 +20,7 @@ USE `volcanoes`;
 --
 -- Table structure for table `users`
 --
-LOCK TABLES `users` WRITE;
+
 DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `users` (
