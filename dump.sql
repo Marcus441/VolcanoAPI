@@ -82,4 +82,3 @@ INSERT INTO `data` VALUES (1,'Abu','Japan','Japan, Taiwan, Marianas','Honshu','6
 
 -- Dump completed on 2024-05-05  8:22:03
 
-UNLOCK TABLES;
