@@ -20,7 +20,7 @@ build/
 .DS_Store
 Thumbs.db
 
-# # Misc
-# .env
-# .crt
-# .key
+# Misc
+.env
+.crt
+.key
