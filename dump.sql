@@ -18,6 +18,24 @@ USE `volcanoes`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `users`
+--
+DROP TABLE IF EXISTS `users`;
+
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `firstName` varchar(255) DEFAULT NULL,
+  `lastName` varchar(255) DEFAULT NULL,
+  `dob` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `hash` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username_UNIQUE` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+
+LOCK TABLES `users` WRITE;
+--
 -- Table structure for table `data`
 --
 
@@ -63,22 +81,5 @@ INSERT INTO `data` VALUES (1,'Abu','Japan','Japan, Taiwan, Marianas','Honshu','6
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2024-05-05  8:22:03
---
--- Table structure for table `users`
---
-LOCK TABLES `users` WRITE;
-DROP TABLE IF EXISTS `users`;
-
-CREATE TABLE `users` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) NOT NULL,
-  `firstName` varchar(255) DEFAULT NULL,
-  `lastName` varchar(255) DEFAULT NULL,
-  `dob` varchar(255) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `hash` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username_UNIQUE` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 UNLOCK TABLES;
