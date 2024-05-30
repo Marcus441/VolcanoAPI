@@ -1,4 +1,3 @@
-
 const error = require("../utils/error");
 
 module.exports = (err, req, res, next) => {
